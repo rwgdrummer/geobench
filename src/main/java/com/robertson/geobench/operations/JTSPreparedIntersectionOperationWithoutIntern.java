@@ -14,7 +14,7 @@ public class JTSPreparedIntersectionOperationWithoutIntern extends
 
 	@Override
 	public String getName() {
-		return "JTS Prepared Intersection With Intern";
+		return "JTS Prepared Intersection Without Intern";
 	}
 
 	@Override

@@ -9,8 +9,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.robertson.benchmark.BaseOperation;
 import com.robertson.benchmark.Benchmark;
-import com.robertson.benchmark.Benchmark.FixedDistortationFn;
-import com.robertson.benchmark.Benchmark.RandomDistortationFn;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperationWithIntern;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperationWithoutIntern;
 import com.vividsolutions.jts.geom.Envelope;
@@ -149,6 +147,7 @@ public class GeoInternedBenchmark extends
 					}
 
 				});
+		// iteration = number of duplicates...to provide the usefulness of interning
 		for (int i = 0; i < iteration; i++) {
 			set.addAll(geos);
 		}

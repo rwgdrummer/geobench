@@ -5,8 +5,6 @@ import java.util.Collection;
 
 import com.google.common.collect.ImmutableList;
 import com.robertson.benchmark.Benchmark;
-import com.robertson.benchmark.Benchmark.FixedDistortationFn;
-import com.robertson.benchmark.Benchmark.RandomDistortationFn;
 import com.robertson.geobench.operations.JTSIntersectionOperation;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperation;
 import com.vividsolutions.jts.geom.Envelope;
@@ -48,8 +46,8 @@ public class GeoBenchmark extends
 				Arrays.asList(
 						new JTSIntersectionOperation(),
 						new JTSPreparedIntersectionOperation()),
-				1,
-				5,
+				1,  // start number
+				5, // how many
 				false);
 
 	}
