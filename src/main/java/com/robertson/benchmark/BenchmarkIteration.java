@@ -1,5 +1,6 @@
 package com.robertson.benchmark;
 
+import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -16,12 +17,15 @@ public class BenchmarkIteration
 					return (arg0.duration - arg1.duration) > 0 ? 1 : -1;
 				}
 			});
-	final private int iteration;
+	final private int complexityIteration;
+	final private int sizeIteration;
 
 	public BenchmarkIteration(
-			int iteration ) {
+			int complexityIteration,
+			int sizeIteration ) {
 		super();
-		this.iteration = iteration;
+		this.complexityIteration = complexityIteration;
+		this.sizeIteration = sizeIteration;
 	}
 
 	public void add(
@@ -29,22 +33,30 @@ public class BenchmarkIteration
 		results.add(result);
 	}
 
-	public int getIteration() {
-		return iteration;
+	public int getComplexityIteration() {
+		return complexityIteration;
+	}
+
+	public int getSizeIteration() {
+		return sizeIteration;
 	}
 
 	public OpResult getBest() {
 		return this.results.first();
 	}
 
-	public void dumpResult() {
-		System.out.printf(
-				"----iteration = %d-----\n",
-				iteration);
+	public void dumpCSV(PrintStream os) {
 		final Iterator<OpResult> it = results.iterator();
 		while (it.hasNext()) {
-			System.out.println(it.next().toString());
+			os.println(complexityIteration +", " + sizeIteration + ", " + it.next().getCSV());
 		}
-		System.out.printf("\n");
+	}
+
+	public void dumpResult() {
+		final Iterator<OpResult> it = results.iterator();
+		while (it.hasNext()) {
+			System.out.println("ci=" + complexityIteration + ", si=" + sizeIteration + ", " + it.next().toString());
+		}
+		System.out.println();
 	}
 }

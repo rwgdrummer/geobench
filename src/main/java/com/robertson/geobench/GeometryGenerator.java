@@ -2,6 +2,7 @@ package com.robertson.geobench;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import com.robertson.benchmark.DistortationFn;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -9,7 +10,6 @@ import com.vividsolutions.jts.geom.CoordinateList;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
 
 public class GeometryGenerator
 {
@@ -25,12 +25,14 @@ public class GeometryGenerator
 			final int count,
 			final List<Double> distanceactors,
 			final DistortationFn distortationFn,
-			final double delta,
+			final int points,
 			final Envelope env ) {
 		// Create the star-ellipses for intersections later on
 		return new Iterator<Geometry>() {
 			int currentCount = 0;
 			GeometryFactory geometryFactory = new GeometryFactory();
+			final Random random = new Random(
+					90210);
 
 			@Override
 			public boolean hasNext() {
@@ -47,23 +49,24 @@ public class GeometryGenerator
 				double dx = env.getWidth();
 				double dy = env.getHeight();
 
-				// We will use a coordinate list to build the linearring
+				// We will use a coordinate list to build the linear ring
 				CoordinateList clist = new CoordinateList();
-				double angle = 0.0;
-				for (int i = 0; angle < 360; angle += delta, i++) {
-					double a = distanceactors.get(i % distanceactors.size()) * 0.5 * dx;
-					double b = distanceactors.get(i % distanceactors.size()) * 0.5 * dy;
+				int i = 0;
+				double amount = 360.0;
+				double delta = amount / (double) points;
+				for (double angle = 0.0; angle < 360 && i < points; angle += (delta - (delta * (random.nextDouble())))) {
+					double a = distanceactors.get(Math.abs(random.nextInt()) % distanceactors.size()) * 0.5 * dx;
+					double b = distanceactors.get(Math.abs(random.nextInt()) % distanceactors.size()) * 0.5 * dy;
 					clist.add(new Coordinate(
-							cx + a * Math.sin(angle),
-							cy + b * Math.cos(angle)));
-
+							cx + a * Math.sin(Math.toRadians(angle)),
+							cy + b * Math.cos(Math.toRadians(angle))));
+					amount -= delta;
+					delta = amount / (double) (points - i);
+					i++;
 				}
 
 				clist.add(clist.get(0));
-				LinearRing lr = geometryFactory.createLinearRing(clist.toCoordinateArray());
-				return geometryFactory.createPolygon(
-						lr,
-						null);
+				return geometryFactory.createPolygon(clist.toCoordinateArray());
 			}
 
 			@Override

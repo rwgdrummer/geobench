@@ -85,30 +85,32 @@ public class GeoBenchmarkWithShapefile extends
 						new JTSIntersectionOperation(),
 						new JTSPreparedIntersectionOperation()),
 				1,
-				10,
+				1000,
 				false);
 
 	}
 
 	@Override
 	public Collection<Geometry> constructCompareSet(
-			int iteration ) {
+			int complexityIteration,
+			int sizeIteration ) {
 		return new ImmutableList.Builder<Geometry>().addAll(
 				gen.generate(
-						iteration,
+						sizeIteration,
 						Arrays.asList(
 								0.3,
 								0.2,
 								0.1),
 						new RandomDistortationFn(
 								7777),
-						0.1,
+						360,
 						compareSetEnv)).build();
 	}
 
 	@Override
 	public Collection<Geometry> constructDrivingSet(
-			int iteration ) {
+			int complexityIteration,
+			int sizeIteration ) {
 		return this.driverSet;
 	}
 }

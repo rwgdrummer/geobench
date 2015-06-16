@@ -32,16 +32,6 @@ public class GeoInternedBenchmark extends
 
 	final static double mb = 1024 * 1024;
 
-	CompareSetSizeCalculator calculator = new CompareSetSizeCalculator() {
-
-		@Override
-		public int getSize(
-				int iteration ) {
-			return iteration;
-		}
-
-	};
-
 	public static void dumpMem() {
 
 		// Getting the runtime reference from system
@@ -89,15 +79,7 @@ public class GeoInternedBenchmark extends
 	}
 
 	public void runWithout() {
-		calculator = new CompareSetSizeCalculator() {
 
-			@Override
-			public int getSize(
-					int iteration ) {
-				return ((int) (iteration / 1000) + 1) * 1000;
-			}
-
-		};
 		runRepeatedBenchmarks(
 				Collections.singletonList((BaseOperation<byte[]>) new JTSPreparedIntersectionOperationWithoutIntern()),
 				1,
@@ -106,15 +88,7 @@ public class GeoInternedBenchmark extends
 	}
 
 	public void runWith() {
-		calculator = new CompareSetSizeCalculator() {
 
-			@Override
-			public int getSize(
-					int iteration ) {
-				return ((int) (iteration / 1000) + 1) * 1000;
-			}
-
-		};
 		runRepeatedBenchmarks(
 				Collections.singletonList((BaseOperation<byte[]>) new JTSPreparedIntersectionOperationWithIntern()),
 				1,
@@ -124,7 +98,8 @@ public class GeoInternedBenchmark extends
 
 	@Override
 	public Collection<byte[]> constructDrivingSet(
-			int iteration ) {
+			int complexityIteration,
+			int sizeIteration ) {
 		ImmutableList.Builder<byte[]> set = new ImmutableList.Builder<byte[]>();
 		Collection<byte[]> geos = Collections2.transform(
 				new ImmutableList.Builder<Geometry>().addAll(
@@ -136,7 +111,7 @@ public class GeoInternedBenchmark extends
 										0.75),
 								new FixedDistortationFn(
 										1.0),
-								0.05,
+								180,
 								drivingSetEnv)).build(),
 				new Function<Geometry, byte[]>() {
 
@@ -147,8 +122,9 @@ public class GeoInternedBenchmark extends
 					}
 
 				});
-		// iteration = number of duplicates...to provide the usefulness of interning
-		for (int i = 0; i < iteration; i++) {
+		// iteration = number of duplicates...to provide the usefulness of
+		// interning
+		for (int i = 0; i < sizeIteration; i++) {
 			set.addAll(geos);
 		}
 
@@ -158,18 +134,19 @@ public class GeoInternedBenchmark extends
 
 	@Override
 	public Collection<byte[]> constructCompareSet(
-			int iteration ) {
+			int complexityIteration,
+			int sizeIteration ) {
 		return Collections2.transform(
 				new ImmutableList.Builder<Geometry>().addAll(
 						gen.generate(
-								calculator.getSize(iteration),
+								sizeIteration * 100,
 								Arrays.asList(
 										0.3,
 										0.2,
 										0.1),
 								new RandomDistortationFn(
 										7777),
-								0.1,
+								100,
 								compareSetEnv)).build(),
 				new Function<Geometry, byte[]>() {
 
@@ -182,9 +159,4 @@ public class GeoInternedBenchmark extends
 				});
 	}
 
-	private interface CompareSetSizeCalculator
-	{
-		public int getSize(
-				int iteration );
-	}
 }

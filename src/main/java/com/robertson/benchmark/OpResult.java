@@ -24,10 +24,13 @@ public class OpResult
 		this.value = value;
 	}
 
+	public String getCSV() {
+		return duration + ", " + durationInSecs + ", " + count + ", \"" + algorithm + "\"";
+	}
 
 	@Override
 	public String toString() {
-		return "CompareResult [ duration=" + duration + ", durationInSecs=" + durationInSecs + ", count=" + count + ", algorithm=" + algorithm + ", statName=" + statName + ", value=" + value + "]";
+		return "duration=" + duration + ", durationInSecs=" + durationInSecs + ", count=" + count + ", algorithm=" + algorithm + ", statName=" + statName + ", value=" + value + "";
 	}
 
 	public OpResult merge(

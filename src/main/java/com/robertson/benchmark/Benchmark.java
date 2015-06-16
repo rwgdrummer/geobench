@@ -1,5 +1,6 @@
 package com.robertson.benchmark;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Random;
 public abstract class Benchmark<T>
 {
 	private List<BenchmarkIteration> resultSet = new ArrayList<BenchmarkIteration>();
+	private PrintStream output = System.out;
 
 	private void runBenchmark(
 			BenchmarkIteration iteration,
@@ -29,43 +31,71 @@ public abstract class Benchmark<T>
 		}
 	}
 
+	public void dumpCSV(
+			PrintStream os ) {
+		for (BenchmarkIteration result : resultSet) {
+			result.dumpCSV(os);
+		}
+	}
+
 	public void runRepeatedBenchmarks(
 			Collection<BaseOperation<T>> ops,
-			int start,
-			int iterations,
+			int complexityIterations,
+			int sizeIterations,
 			boolean breakAtChange ) {
 		BenchmarkIteration last = null;
-		final int stop = start + iterations;
-		for (int i = start; i < stop; i++) {
-			final BenchmarkIteration iterationResults = new BenchmarkIteration(
-					i);
 
-			runBenchmark(
-					iterationResults,
-					ops,
-					constructDrivingSet(i),
-					constructCompareSet(i));
+		for (int si = 1; si <= sizeIterations; si++) {
+			for (int ci = 1; ci <= complexityIterations; ci++) {
+				final BenchmarkIteration iterationResults = new BenchmarkIteration(
+						ci,
+						si);
 
-			resultSet.add(iterationResults);
+				runBenchmark(
+						iterationResults,
+						ops,
+						constructDrivingSet(
+								ci,
+								si),
+						constructCompareSet(
+								ci,
+								si));
 
-			if (last != null) {
-				if (breakAtChange && !last.getBest().algorithm.equals(iterationResults.getBest().algorithm)) {
-					return;
+				resultSet.add(iterationResults);
+
+				if (last != null) {
+					if (breakAtChange && !last.getBest().algorithm.equals(iterationResults.getBest().algorithm)) {
+						return;
+					}
 				}
-			}
-			System.out.print('.');
-			System.out.flush();
-			last = iterationResults;
+			//	System.out.print('.');
+			//	System.out.flush();
+				last = iterationResults;
 
+			}
+			//System.out.println();
+			dumpCSV(output);
+			resultSet.clear();
 		}
-		System.out.println();
+	}
+
+	
+	public PrintStream getOutput() {
+		return output;
+	}
+
+	public void setOutput(
+			PrintStream output ) {
+		this.output = output;
 	}
 
 	public abstract Collection<T> constructDrivingSet(
-			int iteration );
+			int complexityIteration,
+			int sizeIteration );
 
 	public abstract Collection<T> constructCompareSet(
-			int iteration );
+			int complexityIteration,
+			int sizeIteration );
 
 	public static class RandomDistortationFn implements
 			DistortationFn
