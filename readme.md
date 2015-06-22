@@ -1,14 +1,50 @@
 # Benchmark Tools
 
-**com.robertson.geobench.GeoBenchmark**:  compare prepared vs. non prepared JTS geometry operations (e.g. intersection).  
-
+**com.robertson.geobench.GeoBenchmark**:  compare prepared vs. non prepared JTS geometry operations (e.g. intersection).    Output hard-coded to geo_bench_out.csv.
+ 
 **com.robertson.geobench.GeoInternedBenchmark**: compare interned prepared and non prepared JTS geometry with some overhead for maintaining the interned image.
 Prepared Geomerties do not implement Object.hashCode(), thus a separated wrapper image is maintained. Furthermore, to measure the overhead of construction,
-the geometry is maintained in byte[] array (as the key).
-
+the geometry is maintained in byte[] array (as the key).   Output hard-coded to geo_interned_bench_out.csv.
+ 
 **com.robertson.geobench.GeoBenchmarkWithShape**: create benchmarks for comparing random sets of geometries to geometries in the shape file.  This can be used to measure
 the performance between different granularities of a specific shape.
 
+## Test
+
+The benchmark looks through all combinations of complexity and size parameters.  Complexity and size start atone1 and continue up to and including the provided maximum for each parameter.
+The test involes performing a set of operations (e.g. intersection) between a driving shape and a comparison shape.  There is a single driving shape and a group of comparison shapes.
+The size of the group is determined by the size parameter.  The complexity (number of vertices) of the driving shape is determined by the complexity parameter.  All comparison
+shapes have one hundred vertices.   
+ 
+Comparison geometries represent a set of geometries.  The driving geometry represents a query shape.
+ 
+At the moment, the number of sample runs is hard coded to five.  The results for each operation is an average of the results over the sample runs.
+
+## Parameters
+
+* **Complexity**: The complexity of the single driving shape compared to a group of shapess.  The amount of vertices in the driving shape is the complexity times ten.
+* **Size**:  Determines the number of shapes in the comparison group is 500 * the iteration size.
+* **Operations**: The set of operations to perform.
+
+## Operations
+
+Currently, only intersection operations are being benchmarked.
+ 
+There are two categories of operations, those that started with a byte encoded geometries and those that start with instantiated Geometries.
+ 
+The operations used thus far test both the utilization of interning and the best possibile use of a **prepared** geometry.  The prepared geometry is a type of index for improving
+performance of geometric operations.  There is an associated cost for instantiating the prepared geometry for a given geometry.  Prepared geometries may provide different performance
+characteristics depending on the complexity of the underlying drivibg geometry and the geometry to which a comparison is being made.   Inverse comparison involve preparing the comparison instead of the driving geometry.
+
+## Earlier Work
+
+Early versions inspected memory consumption when using interning vs. non-interning.  As can be expected, interning the association between byte encoded geometry and a geometry(prepared or otherwise),
+reduces the memory footprint.  Thus, the memory analysis is excluded from this latest version.  
+ 
+The use of the byte encoding serves two purposes.  First, prepared geometries cannot be interned since they do not implement hashCode().  Interning a prepared geometry
+requires interning a wrapper instance that implements hashCode().  The wrapper could implement hashCode() and equals() using underlying geometry. In these tests, the wrapper implements hashCode() and equals() 
+on the byte encoding of the associated geometry. Second, the primary use of this approach being tested is within data in which geometries are encoded.  Using this approach, the decoding step can be skipped when an interned representation associated
+with a geometry or prepared geometry already exists. 
 
 
 ## Sample Run
@@ -17,122 +53,20 @@ mvn clean compile
 mvn exec:exec
 </pre>
 
+## GeoInternedBenchmark
 
+With five hundred comparison shapes, interned prepared geometries ("JTS Prepared Intersection With Intern") perform consistently better across most levels of complexity tested.  
+Interned geometries where the comparison geometry is prepared ("JTS Inverse Prepared Intersection With Intern") performed nearly as well.  The act of preparing a geometry of limited complexity
+incurs very little overhead compared to gains from its use.  The use of interning, alone provides significant value.   When removing interning ("JTS Prepared Intersection Without Intern" and "JTS Inverse Prepared Intersection Without Intern",  preparing the comparison geometry performs better than
+preparing the driving geometry.  Part of the reason is the time spent reconstructing the driving geometry.  The benefit of preparation is measured when comparing across interning tests. 
+"JTS Inverse Intersection With Intern" and "JTS Inverse Intersection With Intern" both perform worse than their prepared counterparts.
 
-## Sample set of output data
+![Interned](images/geo_int_sum.jpg)
 
+##GeoBenchmark
 
-### com.robertson.geobench.GeoBenchmark
+The graph below shows the results of the three operations between a geometry over increasing complexity with a comparison set of 200 and 1000 geometries, each with ten vertices.
+The graph results indicate that performance is increased when preparing the less complex geometry of the two, with the exception of line strings and single points (complexity two and one, respectively).
 
+![Interned](images/geo_2000.jpg)
 
-The test compared two driving geometries to a thousand geometries for five iterations.  Each iteration increases the number of points in the two driving geometries
-by a factor of 'i' where 'i' is the iteration number.    The results show the effectivness of preparing a geometry increases proportionally as the complexity
-of geometry increases.
-
-```
-----iteration = 1-----
-CompareResult [ duration=554303969, durationInSecs=0.554303969, count=1000, algorithm=JTS Prepared Intersection, statName=count, value=30.0]
-CompareResult [ duration=16642083002, durationInSecs=16.642083002, count=1000, algorithm=JTS Intersection, statName=count, value=30.0]
-
-----iteration = 2-----
-CompareResult [ duration=544393212, durationInSecs=0.544393212, count=1000, algorithm=JTS Prepared Intersection, statName=count, value=30.0]
-CompareResult [ duration=36147822978, durationInSecs=36.147822978, count=1000, algorithm=JTS Intersection, statName=count, value=30.0]
-
-----iteration = 3-----
-CompareResult [ duration=777077045, durationInSecs=0.777077045, count=1000, algorithm=JTS Prepared Intersection, statName=count, value=30.0]
-CompareResult [ duration=68208585100, durationInSecs=68.2085851, count=1000, algorithm=JTS Intersection, statName=count, value=30.0]
-
-----iteration = 4-----
-CompareResult [ duration=1200043231, durationInSecs=1.200043231, count=1000, algorithm=JTS Prepared Intersection, statName=count, value=30.0]
-CompareResult [ duration=120539701834, durationInSecs=120.539701834, count=1000, algorithm=JTS Intersection, statName=count, value=30.0]
-
-----iteration = 5-----
-CompareResult [ duration=989814138, durationInSecs=0.989814138, count=1000, algorithm=JTS Prepared Intersection, statName=count, value=30.0]
-CompareResult [ duration=171163920484, durationInSecs=171.163920484, count=1000, algorithm=JTS Intersection, statName=count, value=30.0]
-
-```
-
-### com.robertson.geobench.GeoInternedBenchmark
-
-Comare interned vs. non-interned for 1000 data items and 1 through 10 different prepared Geometries.  Inspect memory usage.
-Result is that interning is roughtly 10 times faster and 20% less memory in this particular test.
-
-##### Running without interning: (command line without)
-```
-..........
-----iteration = 1-----
-CompareResult [ duration=9245741079, durationInSecs=9.245741079, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=15.0]
-
-----iteration = 2-----
-CompareResult [ duration=19967681228, durationInSecs=19.967681228, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=30.0]
-
-----iteration = 3-----
-CompareResult [ duration=28553679169, durationInSecs=28.553679169, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=45.0]
-
-----iteration = 4-----
-CompareResult [ duration=36562460801, durationInSecs=36.562460801, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=60.0]
-
-----iteration = 5-----
-CompareResult [ duration=45204086204, durationInSecs=45.204086204, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=75.0]
-
-----iteration = 6-----
-CompareResult [ duration=53701260007, durationInSecs=53.701260007, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=90.0]
-
-----iteration = 7-----
-CompareResult [ duration=63311614954, durationInSecs=63.311614954, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=105.0]
-
-----iteration = 8-----
-CompareResult [ duration=67956152458, durationInSecs=67.956152458, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=120.0]
-
-----iteration = 9-----
-CompareResult [ duration=77634651751, durationInSecs=77.634651751, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=135.0]
-
-----iteration = 10-----
-CompareResult [ duration=85915494357, durationInSecs=85.915494357, count=1000, algorithm=JTS Prepared Intersection Without Intern, statName=count, value=150.0]
-
-Used Memory:531.3118133544922
-Free Memory:544.6881866455078
-Total Memory:1076.0
-Max Memory:1820.5
-
-```
-
-##### Running with interning: (command line with)
-```
-..........
-----iteration = 1-----
-CompareResult [ duration=1849656939, durationInSecs=1.849656939, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=15.0]
-
-----iteration = 2-----
-CompareResult [ duration=2247486273, durationInSecs=2.247486273, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=30.0]
-
-----iteration = 3-----
-CompareResult [ duration=3542926196, durationInSecs=3.542926196, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=45.0]
-
-----iteration = 4-----
-CompareResult [ duration=4824038530, durationInSecs=4.82403853, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=60.0]
-
-----iteration = 5-----
-CompareResult [ duration=5120748098, durationInSecs=5.120748098, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=75.0]
-
-----iteration = 6-----
-CompareResult [ duration=5634712861, durationInSecs=5.634712861, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=90.0]
-
-----iteration = 7-----
-CompareResult [ duration=6960461037, durationInSecs=6.960461037, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=105.0]
-
-----iteration = 8-----
-CompareResult [ duration=7528478340, durationInSecs=7.52847834, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=120.0]
-
-----iteration = 9-----
-CompareResult [ duration=9481588442, durationInSecs=9.481588442, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=135.0]
-
-----iteration = 10-----
-CompareResult [ duration=8667329716, durationInSecs=8.667329716, count=1000, algorithm=JTS Prepared Intersection With Intern, statName=count, value=150.0]
-
-Used Memory:517.4288558959961
-Free Memory:341.0711441040039
-Total Memory:858.5
-Max Memory:1820.5
-
-```

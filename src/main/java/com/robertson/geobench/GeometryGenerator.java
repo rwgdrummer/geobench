@@ -54,18 +54,25 @@ public class GeometryGenerator
 				int i = 0;
 				double amount = 360.0;
 				double delta = amount / (double) points;
-				for (double angle = 0.0; angle < 360 && i < points; angle += (delta - (delta * (random.nextDouble())))) {
+				for (double angle = 0.0; angle < 360 && i < points; angle += delta) {
 					double a = distanceactors.get(Math.abs(random.nextInt()) % distanceactors.size()) * 0.5 * dx;
 					double b = distanceactors.get(Math.abs(random.nextInt()) % distanceactors.size()) * 0.5 * dy;
 					clist.add(new Coordinate(
 							cx + a * Math.sin(Math.toRadians(angle)),
 							cy + b * Math.cos(Math.toRadians(angle))));
-					amount -= delta;
-					delta = amount / (double) (points - i);
+					// amount -= delta;
+					// delta = amount / (double) (points - i);
 					i++;
 				}
 
+				if (clist.size() == 1) {
+					return geometryFactory.createPoint(clist.getCoordinate(0));
+				}
+				else if (clist.size() == 2) {
+					return geometryFactory.createLineString(clist.toCoordinateArray());
+				}
 				clist.add(clist.get(0));
+
 				return geometryFactory.createPolygon(clist.toCoordinateArray());
 			}
 

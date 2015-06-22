@@ -38,7 +38,7 @@
 							adding the project build directory -->
 						<classpath />
 						<argument>-Xmx512m</argument>
-						<argument>com.robertson.geobench.GeoBenchmark</argument>
+						<argument>com.robertson.geobench.GeoInternedBenchmark</argument>
 					</arguments>
 				</configuration>
 			</plugin>

@@ -50,14 +50,14 @@ public class GeoBenchmark extends
 	public void run() throws IOException {
 	
 		this.setOutput(new PrintStream(
-				new FileOutputStream("out.csv")));
+				new FileOutputStream("geo_bench_out.csv")));
 		runRepeatedBenchmarks(
 				Arrays.asList(
 						new JTSIntersectionOperation(),
 						new JTSInversePreparedIntersectionOperation(),
 						new JTSPreparedIntersectionOperation()),
-				100, // complexity
-				10, // how many
+				200, // complexity
+				20, // how many
 				false);
 
 	}
@@ -68,14 +68,14 @@ public class GeoBenchmark extends
 			int sizeIteration ) {
 		if (lastSize != sizeIteration) compareSet = new ImmutableList.Builder<Geometry>().addAll(
 				gen.generate(
-						sizeIteration * 500,
+						sizeIteration * 100,
 						Arrays.asList(
 								0.8,
 								0.6,
 								0.7),
 						new RandomDistortationFn(
 								7777),
-						100,
+						10,
 						compareSetEnv)).build();
 		lastSize = sizeIteration;
 		return compareSet;
@@ -94,7 +94,7 @@ public class GeoBenchmark extends
 								0.75),
 						new FixedDistortationFn(
 								1.0),
-						10* complexityIteration,
+						complexityIteration,
 						drivingSetEnv)).build();
 	}
 }

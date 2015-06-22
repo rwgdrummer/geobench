@@ -5,19 +5,19 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
-public class JTSPreparedIntersectionOperationWithoutIntern extends
+public class JTSInversePreparedIntersectionOperationWithoutIntern extends
 		BaseOperation<byte[]>
 {
 
 	final static PreparedGeometryFactory FACTORY = new PreparedGeometryFactory();
 
-	public JTSPreparedIntersectionOperationWithoutIntern() {
+	public JTSInversePreparedIntersectionOperationWithoutIntern() {
 
 	}
 
 	@Override
 	public String getName() {
-		return "JTS Prepared Intersection Without Intern";
+		return "JTS Inverse Prepared Intersection Without Intern";
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class JTSPreparedIntersectionOperationWithoutIntern extends
 			byte[] obj2 ) {
 
 		try {
-			return (FACTORY.create(new WKBReader().read(obj1)).intersects(new WKBReader().read(obj2))) ? 1 : 0;
+			return (FACTORY.create(new WKBReader().read(obj2)).intersects(new WKBReader().read(obj1))) ? 1 : 0;
 		}
 		catch (ParseException e) {
 			e.printStackTrace();

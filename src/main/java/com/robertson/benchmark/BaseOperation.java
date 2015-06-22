@@ -15,6 +15,8 @@ import java.util.Collection;
  */
 public abstract class BaseOperation<T>
 {
+	public static final int SAMPLE_SIZE = 5;
+
 	public BaseOperation() {
 		super();
 	}
@@ -24,18 +26,22 @@ public abstract class BaseOperation<T>
 			Collection<T> compareSet ) {
 
 		long st = System.nanoTime();
+
 		double result = 0;
-		for (T drivingObject : drivingObjects) {
-			for (T objToCompare : compareSet) {
-				result += op(
-						drivingObject,
-						objToCompare);
+		for (int i = 0; i < SAMPLE_SIZE; i++) {
+			result = 0;
+			for (T drivingObject : drivingObjects) {
+				for (T objToCompare : compareSet) {
+					result += op(
+							drivingObject,
+							objToCompare);
+				}
 			}
 		}
 
 		return new OpResult(
 				getStatName(),
-				System.nanoTime() - st,
+				(System.nanoTime() - st) / SAMPLE_SIZE,
 				compareSet.size(),
 				getName(),
 				result);

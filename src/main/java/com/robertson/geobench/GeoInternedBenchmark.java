@@ -1,5 +1,8 @@
 package com.robertson.geobench;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +12,10 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.robertson.benchmark.BaseOperation;
 import com.robertson.benchmark.Benchmark;
+import com.robertson.geobench.operations.JTSIntersectionOperationWithIntern;
+import com.robertson.geobench.operations.JTSIntersectionOperationWithoutIntern;
+import com.robertson.geobench.operations.JTSInversePreparedIntersectionOperationWithIntern;
+import com.robertson.geobench.operations.JTSInversePreparedIntersectionOperationWithoutIntern;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperationWithIntern;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperationWithoutIntern;
 import com.vividsolutions.jts.geom.Envelope;
@@ -31,6 +38,8 @@ public class GeoInternedBenchmark extends
 	final GeometryGenerator gen = new GeometryGenerator();
 
 	final static double mb = 1024 * 1024;
+	Collection<byte[]> compareSet = null;
+	int lastSize = 0;
 
 	public static void dumpMem() {
 
@@ -52,7 +61,8 @@ public class GeoInternedBenchmark extends
 	}
 
 	public static void main(
-			String args[] ) {
+			String args[] )
+			throws FileNotFoundException {
 		GeoInternedBenchmark benchmark = new GeoInternedBenchmark();
 		if (args.length > 0) {
 			if (args[0].equals("with"))
@@ -68,22 +78,30 @@ public class GeoInternedBenchmark extends
 		dumpMem();
 	}
 
-	public void run() {
+	public void run()
+			throws FileNotFoundException {
+		this.setOutput(new PrintStream(
+				new FileOutputStream(
+						"geo_interned_bench_out.csv")));
 		runRepeatedBenchmarks(
 				Arrays.asList(
 						new JTSPreparedIntersectionOperationWithoutIntern(),
-						new JTSPreparedIntersectionOperationWithIntern()),
-				1,
-				10,
-				true);
+						new JTSInversePreparedIntersectionOperationWithoutIntern(),
+						new JTSInversePreparedIntersectionOperationWithIntern(),
+						new JTSPreparedIntersectionOperationWithIntern(),
+						new JTSIntersectionOperationWithoutIntern(),
+						new JTSIntersectionOperationWithIntern()),
+				100, // complexity
+				10, // how many
+				false);
 	}
 
 	public void runWithout() {
 
 		runRepeatedBenchmarks(
 				Collections.singletonList((BaseOperation<byte[]>) new JTSPreparedIntersectionOperationWithoutIntern()),
+				100,
 				1,
-				10,
 				false);
 	}
 
@@ -91,8 +109,8 @@ public class GeoInternedBenchmark extends
 
 		runRepeatedBenchmarks(
 				Collections.singletonList((BaseOperation<byte[]>) new JTSPreparedIntersectionOperationWithIntern()),
+				100,
 				1,
-				10,
 				false);
 	}
 
@@ -100,7 +118,6 @@ public class GeoInternedBenchmark extends
 	public Collection<byte[]> constructDrivingSet(
 			int complexityIteration,
 			int sizeIteration ) {
-		ImmutableList.Builder<byte[]> set = new ImmutableList.Builder<byte[]>();
 		Collection<byte[]> geos = Collections2.transform(
 				new ImmutableList.Builder<Geometry>().addAll(
 						gen.generate(
@@ -111,7 +128,7 @@ public class GeoInternedBenchmark extends
 										0.75),
 								new FixedDistortationFn(
 										1.0),
-								180,
+								2 * complexityIteration,
 								drivingSetEnv)).build(),
 				new Function<Geometry, byte[]>() {
 
@@ -122,13 +139,8 @@ public class GeoInternedBenchmark extends
 					}
 
 				});
-		// iteration = number of duplicates...to provide the usefulness of
-		// interning
-		for (int i = 0; i < sizeIteration; i++) {
-			set.addAll(geos);
-		}
 
-		return set.build();
+		return geos;
 
 	}
 
@@ -136,14 +148,14 @@ public class GeoInternedBenchmark extends
 	public Collection<byte[]> constructCompareSet(
 			int complexityIteration,
 			int sizeIteration ) {
-		return Collections2.transform(
+		if (lastSize != sizeIteration) compareSet = Collections2.transform(
 				new ImmutableList.Builder<Geometry>().addAll(
 						gen.generate(
-								sizeIteration * 100,
+								sizeIteration * 10,
 								Arrays.asList(
-										0.3,
-										0.2,
-										0.1),
+										0.8,
+										0.6,
+										0.7),
 								new RandomDistortationFn(
 										7777),
 								100,
@@ -157,6 +169,8 @@ public class GeoInternedBenchmark extends
 					}
 
 				});
+		lastSize = sizeIteration;
+		return compareSet;
 	}
 
 }
