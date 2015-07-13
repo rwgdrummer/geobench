@@ -10,7 +10,8 @@ public abstract class Benchmark<T>
 {
 	private List<BenchmarkIteration> resultSet = new ArrayList<BenchmarkIteration>();
 	private PrintStream output = System.out;
-
+	protected boolean includeValue = false;
+	
 	private void runBenchmark(
 			BenchmarkIteration iteration,
 			Collection<BaseOperation<T>> ops,
@@ -19,6 +20,7 @@ public abstract class Benchmark<T>
 
 		for (BaseOperation<T> op : ops) {
 			final OpResult result = (op.run(
+					iteration,
 					drivingObjectSet,
 					compareSet));
 			iteration.add(result);
@@ -32,9 +34,12 @@ public abstract class Benchmark<T>
 	}
 
 	public void dumpCSV(
-			PrintStream os ) {
+			PrintStream os,
+			boolean includeValue ) {
 		for (BenchmarkIteration result : resultSet) {
-			result.dumpCSV(os);
+			result.dumpCSV(
+					os,
+					includeValue);
 		}
 	}
 
@@ -68,18 +73,17 @@ public abstract class Benchmark<T>
 						return;
 					}
 				}
-			//	System.out.print('.');
-			//	System.out.flush();
+				// System.out.print('.');
+				// System.out.flush();
 				last = iterationResults;
 
 			}
-			//System.out.println();
-			dumpCSV(output);
+			// System.out.println();
+			dumpCSV(output,includeValue);
 			resultSet.clear();
 		}
 	}
 
-	
 	public PrintStream getOutput() {
 		return output;
 	}

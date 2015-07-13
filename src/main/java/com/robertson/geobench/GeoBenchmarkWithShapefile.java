@@ -12,6 +12,8 @@ import com.robertson.benchmark.Benchmark;
 import com.robertson.benchmark.Benchmark.RandomDistortationFn;
 import com.robertson.geobench.operations.JTSIntersectionOperation;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperation;
+import com.robertson.tools.GeometryGenerator;
+import com.robertson.tools.ShapeFileUtils;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 

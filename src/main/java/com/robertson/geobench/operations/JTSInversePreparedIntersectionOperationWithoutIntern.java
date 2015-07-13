@@ -1,6 +1,7 @@
 package com.robertson.geobench.operations;
 
 import com.robertson.benchmark.BaseOperation;
+import com.robertson.benchmark.BenchmarkIteration;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
@@ -27,6 +28,7 @@ public class JTSInversePreparedIntersectionOperationWithoutIntern extends
 
 	@Override
 	public double op(
+			BenchmarkIteration iteration,
 			byte[] obj1,
 			byte[] obj2 ) {
 

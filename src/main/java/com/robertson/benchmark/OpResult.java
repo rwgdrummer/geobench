@@ -24,8 +24,9 @@ public class OpResult
 		this.value = value;
 	}
 
-	public String getCSV() {
-		return duration + ", " + durationInSecs + ", " + count + ", \"" + algorithm + "\"";
+	public String getCSV(
+			boolean includeValue ) {
+		return duration + ", " + durationInSecs + ", " + count + ", \"" + algorithm + (includeValue ? ("\", " + value) : "\"");
 	}
 
 	@Override

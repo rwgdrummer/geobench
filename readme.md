@@ -9,6 +9,8 @@ the geometry is maintained in byte[] array (as the key).   Output hard-coded to 
 **com.robertson.geobench.GeoBenchmarkWithShape**: create benchmarks for comparing random sets of geometries to geometries in the shape file.  This can be used to measure
 the performance between different granularities of a specific shape.
 
+**com.robertson.geobench.hull.ConcaveHullBench**: create benchmarks for three different concave hull algorithms. Each algorithm is evaluated for performance and effectiveness (smallest area).
+
 ## Test
 
 The benchmark looks through all combinations of complexity and size parameters.  Complexity and size start atone1 and continue up to and including the provided maximum for each parameter.
@@ -28,7 +30,9 @@ At the moment, the number of sample runs is hard coded to five.  The results for
 
 ## Operations
 
-Currently, only intersection operations are being benchmarked.
+There are two sets of operations: intersection operations and concave hull operations (with ConcaveHullBench).
+
+## Intersection Operations
  
 There are two categories of operations, those that started with a byte encoded geometries and those that start with instantiated Geometries.
  
@@ -69,4 +73,34 @@ The graph below shows the results of the three operations between a geometry ove
 The graph results indicate that performance is increased when preparing the less complex geometry of the two, with the exception of line strings and single points (complexity two and one, respectively).
 
 ![Interned](images/geo_2000.jpg)
+
+##ConcaveHullBench
+
+Three operations are tested and shown below.
+
+* TBH, developed by OpenSphere (LGPL), use a form of tesselation.
+* GHC is a gift-unwrapping approach based on on Jin-Seo Park and Se-Jong Oh. "A New Concave Algorithm and Concaveness Measure for n-dimensional Datasets" . Department of Nanobiomedical Science. Dankook University. 2010.
+* GHS is a gift-unwrapping approach with aimed at performance.  It is extremely simple and the least effective.  The results will show that the effective/performance trade-off is quite reasonable.
+
+The next set of figures depict the computed hulls, demonstrating the effectiveness of each algorithm.
+
+
+![Interned](images/tbh_hull_10_1.jpg)
+####TBH HULL
+
+![Interned](images/ghc_hull_10_1.jpg)
+####GHC HULL
+
+![Interned](images/ghs_hull_10_1.jpg)
+####GHS HULL
+
+The next figure depicts the performance over the number of points over which the hull is calculated.  The number of points is the size value multiplied by two thousand.
+
+![Interned](images/hull_by_time.jpg)
+
+The next figure depicts the measure of effective using area of concave hull; the more effective solution has a smaller area.  For simplicity, only hulls calculated over a population of ten thousand points are shown.
+The complexity measure is a variation of a threshold parameter used in the each algorithm.  The measurement is a bit misleading the thresh interpretation is not the same between TBH and the other two algorithms.  One can get 
+a sense of how the parameter affects area.  Although area is not a perfect measure.  A measure of precision of the hull surface would be more appropriate--a hint for future work.  
+
+![Interned](images/hull_by_complexity.jpg)
 

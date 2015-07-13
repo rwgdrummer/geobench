@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.robertson.benchmark.BaseOperation;
+import com.robertson.benchmark.BenchmarkIteration;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
@@ -32,6 +33,7 @@ public class JTSPreparedIntersectionOperationWithIntern extends
 
 	@Override
 	public double op(
+			BenchmarkIteration iteration,
 			byte[] obj1,
 			byte[] obj2 ) {
 

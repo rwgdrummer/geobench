@@ -22,6 +22,7 @@ public abstract class BaseOperation<T>
 	}
 
 	public OpResult run(
+			BenchmarkIteration iteration,
 			Collection<T> drivingObjects,
 			Collection<T> compareSet ) {
 
@@ -33,6 +34,7 @@ public abstract class BaseOperation<T>
 			for (T drivingObject : drivingObjects) {
 				for (T objToCompare : compareSet) {
 					result += op(
+							iteration,
 							drivingObject,
 							objToCompare);
 				}
@@ -52,6 +54,7 @@ public abstract class BaseOperation<T>
 	public abstract String getStatName();
 
 	public abstract double op(
+			BenchmarkIteration iteration,
 			T obj1,
 			T obj2 );
 

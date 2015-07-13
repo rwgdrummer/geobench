@@ -18,6 +18,7 @@ import com.robertson.geobench.operations.JTSInversePreparedIntersectionOperation
 import com.robertson.geobench.operations.JTSInversePreparedIntersectionOperationWithoutIntern;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperationWithIntern;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperationWithoutIntern;
+import com.robertson.tools.GeometryGenerator;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBWriter;

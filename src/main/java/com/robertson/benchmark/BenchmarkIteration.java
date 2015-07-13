@@ -45,10 +45,13 @@ public class BenchmarkIteration
 		return this.results.first();
 	}
 
-	public void dumpCSV(PrintStream os) {
+	public void dumpCSV(
+			PrintStream os,
+			boolean includeValue ) {
 		final Iterator<OpResult> it = results.iterator();
 		while (it.hasNext()) {
-			os.println(complexityIteration +", " + sizeIteration + ", " + it.next().getCSV());
+			os.println(complexityIteration + ", " + sizeIteration + ", " + it.next().getCSV(
+					includeValue));
 		}
 	}
 
@@ -58,5 +61,10 @@ public class BenchmarkIteration
 			System.out.println("ci=" + complexityIteration + ", si=" + sizeIteration + ", " + it.next().toString());
 		}
 		System.out.println();
+	}
+
+	@Override
+	public String toString() {
+		return "" + complexityIteration + "_" + sizeIteration;
 	}
 }

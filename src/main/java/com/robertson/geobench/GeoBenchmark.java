@@ -11,6 +11,7 @@ import com.robertson.benchmark.Benchmark;
 import com.robertson.geobench.operations.JTSIntersectionOperation;
 import com.robertson.geobench.operations.JTSInversePreparedIntersectionOperation;
 import com.robertson.geobench.operations.JTSPreparedIntersectionOperation;
+import com.robertson.tools.GeometryGenerator;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 

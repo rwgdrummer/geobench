@@ -1,6 +1,7 @@
 package com.robertson.geobench.operations;
 
 import com.robertson.benchmark.BaseOperation;
+import com.robertson.benchmark.BenchmarkIteration;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
@@ -26,6 +27,7 @@ public class JTSPreparedIntersectionOperation extends
 
 	@Override
 	public double op(
+			BenchmarkIteration iteration,
 			Geometry obj1,
 			Geometry obj2 ) {
 
